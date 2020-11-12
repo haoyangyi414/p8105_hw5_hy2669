@@ -23,7 +23,7 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 ## Problem 1
-read and tidy the dataset
+### read and tidy the dataset
 ```{r message= F}
 homicide_df = read_csv("data/homicide_data/homicide-data.csv") %>%
   mutate(city_state = str_c(city,state,sep = '_'),
@@ -35,14 +35,14 @@ homicide_df = read_csv("data/homicide_data/homicide-data.csv") %>%
   select(city_state,resolved) %>%
   filter(city_state != "Tulsa_AL") 
 ```
-summarize
+### summarize
 ```{r message= F}
 aggregate_df = homicide_df %>%
   group_by(city_state) %>%
   summarize(hom_total = n(),
             hom_unsolved = sum(resolved == "unsolved"))
 ```
-obtain results of proportion tests
+### obtain results of proportion tests
 ```{r}
 results_df = aggregate_df %>%
   mutate(prop_tests = map2(.x = hom_unsolved, .y = hom_total, ~prop.test(x = .x, n = .y)),
@@ -61,3 +61,30 @@ results_df %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.1))
   
 ```
+
+## Problem 2
+### read and tidy the data
+```{r warning=F, message=F}
+file_name = list.files('./data/lda_data') # get the names of 20 csv.files
+arm_df = tibble(file_name = file_name) %>% # start with a dataframe containing all file names.
+  bind_cols(map_df(str_c('./data/lda_data/',file_name), read_csv)) %>% # read data from 20 csvs, save the results in arm_df.
+  separate(file_name, into = c('arm_type', 'id')) # tidy the dataset, separate file_name(con01) into arm_type(con/exp) and id(1-10).
+  knitr::kable(arm_df) # show the tidy dataset. Weekly observations are tidy.
+```
+
+### make a spaghetti plot
+```{r}
+arm_df %>%
+  pivot_longer(week_1:week_8,
+               names_to = 'week',
+               names_prefix = 'week_',
+               values_to = 'observation') %>% # combine weekly observations in a column for making plot
+  mutate(arm_id = str_c(arm_type,id)) %>% # combine arm_type and id again 
+  group_by(arm_id) %>%
+  ggplot(aes(x = week, y = observation, color = id, group = arm_id))+
+  geom_line(alpha = 0.6)+
+  geom_point(aes(shape = arm_type), alpha = 0.8, size = 2.5)+ # use aes(shape = ) to create points with distinct shape from two types of arm.
+  labs(title = "Observations on each subject over time", x = "Week", y = "Observation")+
+  theme(legend.position = "bottom", plot.title = element_text(hjust = .5))
+```
+  Over the 8 weeks the observations of experiment group has a increasing trend while observations of control groups stayed the same with little fluctuations. After 8 weeks the observations of experiment group are higher than control group in all 10 subjects
