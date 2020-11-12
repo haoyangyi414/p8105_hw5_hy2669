@@ -88,3 +88,32 @@ arm_df %>%
   theme(legend.position = "bottom", plot.title = element_text(hjust = .5))
 ```
   Over the 8 weeks the observations of experiment group has a increasing trend while observations of control groups stayed the same with little fluctuations. After 8 weeks the observations of experiment group are higher than control group in all 10 subjects
+
+## Problem 3
+### Create the function 
+```{r}
+set.seed(1)
+norm_fun <- function(mu,n = 30, sigma = 5) # default setup: n = 30, sigma = 5
+{
+  sim_data = tibble(x = rnorm(n,mean = mu,sd = sigma),)
+  sim_data %>%
+    mutate(mu_hat = broom::tidy(t.test(sim_data))$estimate,
+           p_vsamplalue = broom::tidy(t.test(sim_data))$p.value,
+            true_mean = mu) %>%
+    select(-x) %>%
+    distinct()
+}
+```
+### Simulation for mu = 0,1,2,3,4,5,6
+```{r}
+sim0_df = rerun(200,norm_fun(mu = 1)) %>%
+  bind_rows() # Generate 5000 normal(mu = 0, sigma = 5, n = 30) simulation and store the results of t.test(H0 : mu = 0)
+
+sim_df <- tibble(mu = c(0:6)) %>% # expand simulation to mu = 0,1,2,3,4,5,6
+  mutate(output_list = map(.x = mu, ~rerun(200, norm_fun(mu = .x))),
+         result_df = map(output_list,bind_rows)) %>%
+  select(-output_list) %>%
+  unnest(result_df) %>%
+  mutate(Null_hypothesis = ifelse(p_value >= 0.05, "Fail to reject",'Reject')) # Decision rule of t-test: If p_value >= 0.05, reject H0, otherwise fail to reject H0
+  
+```
