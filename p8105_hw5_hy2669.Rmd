@@ -2,7 +2,7 @@
 title: "P8105_hw5_hy2669"
 author: "haoyang,yi"
 date: "2020/11/10"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
