@@ -98,7 +98,7 @@ norm_fun <- function(mu,n = 30, sigma = 5) # default setup: n = 30, sigma = 5
   sim_data = tibble(x = rnorm(n,mean = mu,sd = sigma),)
   sim_data %>%
     mutate(mu_hat = broom::tidy(t.test(sim_data))$estimate,
-           p_vsamplalue = broom::tidy(t.test(sim_data))$p.value,
+           p_value = broom::tidy(t.test(sim_data))$p.value,
             true_mean = mu) %>%
     select(-x) %>%
     distinct()
@@ -110,10 +110,26 @@ sim0_df = rerun(200,norm_fun(mu = 1)) %>%
   bind_rows() # Generate 5000 normal(mu = 0, sigma = 5, n = 30) simulation and store the results of t.test(H0 : mu = 0)
 
 sim_df <- tibble(mu = c(0:6)) %>% # expand simulation to mu = 0,1,2,3,4,5,6
-  mutate(output_list = map(.x = mu, ~rerun(200, norm_fun(mu = .x))),
+  mutate(output_list = map(.x = mu, ~rerun(100, norm_fun(mu = .x))),
          result_df = map(output_list,bind_rows)) %>%
   select(-output_list) %>%
   unnest(result_df) %>%
-  mutate(Null_hypothesis = ifelse(p_value >= 0.05, "Fail to reject",'Reject')) # Decision rule of t-test: If p_value >= 0.05, reject H0, otherwise fail to reject H0
-  
+  mutate(Null_hypothesis = ifelse(p_value >= 0.05, "Fail to reject",'Reject'))  # Decision rule of t-test: If p_value < 0.05, reject H0, otherwise fail to reject H0
+  head(sim_df)
 ```
+
+### Make a plot to show association between effect size and power.
+```{r message=F }
+sim_df %>%
+  group_by(mu) %>%
+  summarize(power = sum(Null_hypothesis == 'Reject')/n()) %>% # calculate power when mu = 0:6 
+  ggplot(aes(x = mu, y = power))+
+  geom_point(size = 2)+
+  geom_line(alpha = 0.6)+
+  geom_smooth(alpha = 0.3,size = 0.5)+
+  labs( title = "Association between effect size and power",
+        x = "True mu",
+        y = "Power") +
+  theme(plot.title = element_text(hjust = .5))
+```
+
