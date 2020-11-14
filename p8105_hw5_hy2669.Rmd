@@ -131,6 +131,7 @@ sim_df %>%
         y = "Power") +
   theme(plot.title = element_text(hjust = .5))
 ```
+  As effect size increases, power increases, when effect size is high enough (in this case: mu >= 4), power is approximately equal to 1. 
 
 ### Make a plot showing the average estimate of μ^ on the y axis and the true μ 
 ```{r message = F, warning = F}
@@ -140,12 +141,12 @@ sim_df %>%
   ggplot(aes(x = mu, y = average_mu_hat))+
   geom_point(size = 2)+
   geom_line(alpha = 0.6)+
-  geom_smooth(alpha = 0.3,size = 0.5)+
   labs( title = "Association between true μ and average estimate of μ^",
         x = "True value of μ",
         y = "Average estimate of μ^") +
   theme(plot.title = element_text(hjust = .5))
 ```
+  Clearly the average estimate of mu_hat is approximately equal to true mu in this 5000 times simulation for mu = 0,1,2,3,4,5,6
 
 ### Make a plot showing the average estimate of μ^ on the y axis and the true μ in samples for which the null was rejected
 
@@ -157,8 +158,9 @@ sim_df %>%
   ggplot(aes(x = mu, y = average_mu_hat))+
   geom_point(size = 2)+
   geom_line(alpha = 0.6)+
-  geom_smooth(alpha = 0.3,size = 0.5)+
   labs( title = "Association between true μ and average estimate of μ^ when H0 is rejected",
         x = "True value of μ",
         y = "Average estimate of μ^") +
   theme(plot.title = element_text(hjust = .5))
+```
+  Across test for which the null hypothesis is rejected, when true mu = 0,1,2,3, which means true mu is close to the null hypothesis(mu = 0), the average estimate of mu_hat is not equal to true value of mu, since . But when true mu is so large that the null hypothesis is always rejected, the average estimate of mu_hat is approximately equal to true value of mu. 
