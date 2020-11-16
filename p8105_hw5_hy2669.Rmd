@@ -163,4 +163,6 @@ sim_df %>%
         y = "Average estimate of μ^") +
   theme(plot.title = element_text(hjust = .5))
 ```
-  Across test for which the null hypothesis is rejected, when true mu = 0,1,2,3, which means true mu is close to the null hypothesis(mu = 0), the average estimate of mu_hat is not equal to true value of mu, since . But when true mu is so large that the null hypothesis is always rejected, the average estimate of mu_hat is approximately equal to true value of mu. 
+  Across test for which the null hypothesis is rejected, when true mu = 0,1,2,3, which means true mu is close to the null hypothesis(mu = 0), the average estimate of mu_hat is not equal to true value of mu. This is because mu_hats for those null hypothesis is rejected are biased from population mean since the proportion of rejecting mu = 0 is not high enough. In a special case when population mean = 1, mu_hat needs to be larger to reject H0 (which is mu = 0), so average estimate mu_hat is above 2. 
+  
+  When true mu is so large that the null hypothesis is always rejected, the average estimate of mu_hat is approximately equal to true value of mu. This is because the average estimate of mu_hat basically represent the estimate of mu in 5000 samples simulated from normal distribution, which equals to the population mean.
